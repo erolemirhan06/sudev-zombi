@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zombi Platform Savunması (5x6 3D Arcade)</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/sudev-mark.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <!-- Blueprint background accents -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- 3D Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Screen Damage/Flash FX -->
+  <div id="screen-flash"></div>
+
+  <!-- Floating Combat Texts & Scores -->
+  <div id="floating-text-container"></div>
+
+  <!-- Big Center Level-Up / Warning Announcement -->
+  <div id="center-announcement" class="center-announcement"></div>
+  <div id="weapon-upgrade-notice" class="weapon-upgrade-notice" aria-live="polite"></div>
+
+  <!-- HUD Overlay -->
+  <div id="hud">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <!-- Score & High Score -->
+      <div class="hud-panel score-box">
+        <div>
+          <div class="hud-label">PUAN</div>
+          <div id="score-val" class="hud-value">0</div>
+        </div>
+        <div style="border-left: 1px solid #e4e6e8; padding-left: 14px;">
+          <div class="hud-label">EN YÜKSEK</div>
+          <div id="high-score-val" class="hud-value" style="font-size: 18px;">0</div>
+        </div>
+      </div>
+
+      <!-- Level -->
+      <div class="hud-panel">
+        <div id="level-val" class="level-badge">SEVİYE 1</div>
+      </div>
+
+      <!-- Missed Zombies (Max 5) -->
+      <div class="hud-panel missed-panel">
+        <div class="hud-label">KAÇIRILAN (CAN)</div>
+        <div id="hearts-container" class="hearts-container">
+          <div class="heart-slot">💚</div>
+          <div class="heart-slot">💚</div>
+          <div class="heart-slot">💚</div>
+          <div class="heart-slot">💚</div>
+          <div class="heart-slot">💚</div>
+        </div>
+      </div>
+
+      <!-- Audio & Pause Controls -->
+      <div style="display: flex; gap: 10px;">
+        <button id="btn-sound" class="btn-icon" title="Sesi Aç/Kapat">🔊</button>
+        <button id="btn-pause" class="btn-icon" title="Duraklat">⏸️</button>
+      </div>
+    </div>
+
+    <!-- Bottom Bar & Controls Info -->
+    <div class="bottom-bar">
+      <div class="controls-hint">
+        <span>🎯 <kbd>Sol Tık</kbd> veya <kbd>Boşluk</kbd> Ateş Et</span>
+        <span>↔️ <kbd>A</kbd> / <kbd>D</kbd> veya <kbd>Ok Tuşları</kbd> Hareket</span>
+        <span>⚡ <kbd>1-5</kbd> Sütuna Hızlı Hedef</span>
+      </div>
+
+      <!-- Mobile Touch Controls -->
+      <div class="mobile-controls">
+        <button id="btn-mobile-left" class="btn-mobile">◀</button>
+        <button id="btn-mobile-shoot" class="btn-mobile">💥</button>
+        <button id="btn-mobile-right" class="btn-mobile">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Game Modal -->
+  <div id="start-modal" class="modal-overlay active">
+    <div class="modal-card">
+      <img class="brand-wordmark" src="assets/sudev-wordmark.svg" alt="SÜDEV — Selçuk Üniversitesi Yazılım Geliştirme Topluluğu">
+      <h1 class="modal-title title-start">ZOMBİ <span class="ink-sun">PLATFORMU</span></h1>
+      <p class="modal-desc">
+        5x6 satır-sütunlu platformda zombiler karşıdan yaklaşıyor!<br>
+        Plazma topunla zombileri vur ve <strong>platformdan aşağı uçuruma fırlat!</strong>
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="feature-icon">🚀</span>
+          <span><strong>Uçuruma Düşür:</strong> Her vuruşta zombiler fizik etkisiyle takla atarak boşluğa yuvarlanır.</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">⚡</span>
+          <span><strong>Seviye & Hız:</strong> Vurduğun her zombide seviye atlar, zombiler daha hızlı ve seri gelir!</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">⚠️</span>
+          <span><strong>10 Can Hakkı:</strong> Platformu geçip kaçan 10. zombide oyun biter!</span>
+        </div>
+      </div>
+
+      <button id="btn-start" class="btn-action">OYUNA BAŞLA</button>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div id="gameover-modal" class="modal-overlay">
+    <div class="gameover-content">
+      <div class="modal-card">
+        <img class="brand-wordmark" src="assets/sudev-wordmark.svg" alt="SÜDEV — Selçuk Üniversitesi Yazılım Geliştirme Topluluğu">
+        <h1 class="modal-title title-over">OYUN BİTTİ!</h1>
+        <p class="modal-desc">10 Zombi Platformdan Kaçtı!</p>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-title">SKOR</div>
+            <div id="final-score" class="stat-num">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">EN YÜKSEK SKOR</div>
+            <div id="modal-high-score" class="stat-num">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">ULAŞILAN SEVİYE</div>
+            <div id="final-level" class="stat-num">1</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">DÜŞÜRÜLEN ZOMBİ</div>
+            <div id="final-kills" class="stat-num">0</div>
+          </div>
+        </div>
+
+        <button id="btn-restart" class="btn-action">TEKRAR OYNA</button>
+      </div>
+      <a class="gameover-qr" href="https://impression-cartridges-radios-evaluating.trycloudflare.com/katil?register=1" target="_blank" rel="noopener noreferrer" aria-label="Kayıt sayfasını aç">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&amp;data=https%3A%2F%2Fimpression-cartridges-radios-evaluating.trycloudflare.com%2Fkatil%3Fregister%3D1" alt="Kayıt sayfası için QR kod">
+      </a>
+    </div>
+  </div>
+
+  <!-- Pause Modal -->
+  <div id="pause-modal" class="modal-overlay">
+    <div class="modal-card">
+      <img class="brand-wordmark" src="assets/sudev-wordmark.svg" alt="SÜDEV — Selçuk Üniversitesi Yazılım Geliştirme Topluluğu">
+      <h1 class="modal-title">DURAKLATILDI</h1>
+      <p class="modal-desc">Nefes al ve hazır olduğunda devam et!</p>
+      <button id="btn-resume" class="btn-action">DEVAM ET</button>
+    </div>
+  </div>
+
+  <!-- Three.js (Local first, CDN fallback) -->
+  <script src="lib/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
+
+  <!-- Game Logic -->
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
