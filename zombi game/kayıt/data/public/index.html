@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 Oyun Katılımcı Sırası & QR Yönetim Paneli</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/svg+xml" href="/assets/sudev-mark.svg">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo-section">
+        <div class="logo-icon">
+          <img src="/assets/sudev-mark.svg" alt="SÜDEV">
+        </div>
+        <div>
+          <div class="logo-title">
+            Oyun Katılımcı Listesi
+            <span class="badge-live">Canlı Sıra</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Sound Alert Toggle -->
+        <button id="btnSoundToggle" class="btn btn-secondary" title="Sesli Bildirim">
+          <span id="soundIcon">🔊</span>
+          <span id="soundText">Ses Açık</span>
+        </button>
+
+        <!-- Manual Add Button -->
+        <button id="btnOpenManualAdd" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Manuel Ekle
+        </button>
+
+        <!-- Export Dropdown / Buttons -->
+        <a href="/api/export/csv" class="btn btn-secondary" download>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Excel / CSV
+        </a>
+
+        <!-- Fullscreen -->
+        <button id="btnFullscreen" class="btn btn-secondary btn-icon" title="Tam Ekran">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Big Announcement Banner -->
+  <div id="callBanner" class="call-banner">
+    <div class="call-banner-icon">📢</div>
+    <div class="call-banner-text">
+      <h4>Şu An Sıradaki Katılımcı</h4>
+      <h2 id="callBannerName">@kullanici</h2>
+    </div>
+  </div>
+
+  <!-- App Layout -->
+  <main class="app-container">
+    
+    <!-- Left Column: QR Code & Controls -->
+    <aside class="sidebar">
+      
+      <!-- Big QR Code Card -->
+      <div class="card qr-card">
+        <div class="qr-header">
+          <h2>📱 Sıraya Katılmak İçin Okutun</h2>
+          <p>Herhangi bir Wi-Fi veya mobil internetten Instagram hesabınızla sıraya katılın</p>
+        </div>
+
+        <!-- Tunnel Status Badge -->
+        <div id="tunnelStatusBox" class="tunnel-status-box status-starting">
+          <span id="tunnelStatusDot" class="status-dot"></span>
+          <span id="tunnelStatusText">İnternet Tüneli Hazırlanıyor...</span>
+          <button type="button" id="btnRestartTunnel" class="btn-restart" title="Tüneli Yeniden Başlat">🔄 Yenile</button>
+        </div>
+
+        <div class="qr-frame">
+          <img id="qrImage" class="qr-image" src="" alt="Sıraya Katıl QR Kodu">
+        </div>
+
+        <div class="qr-link-box">
+          <span id="qrLinkText" class="qr-link-text">Bağlantı hazırlanıyor...</span>
+          <div style="display: flex; gap: 4px;">
+            <button type="button" id="btnCopyLink" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;">Kopyala</button>
+            <a id="btnOpenLink" href="#" target="_blank" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; text-decoration: none;">Aç</a>
+          </div>
+        </div>
+
+        <div class="qr-link-note">
+          Bu HTTPS bağlantısı farklı Wi-Fi ağlarından ve mobil internetten erişim içindir.
+        </div>
+      </div>
+
+      <!-- Quick Action: Call Next -->
+      <div class="card call-action-card">
+        <h3>⚡ Sıradaki Oyuncuyu Çağır</h3>
+        <p style="font-size: 13px; color: var(--text-muted);">Bekleyen ilk kişiyi oyuna alır ve ekranda duyurur.</p>
+        <button id="btnCallNext" class="btn btn-primary btn-big-call">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Sıradakini Çağır!
+        </button>
+      </div>
+
+      <!-- Reset Queue Options -->
+      <div class="card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Sıra Temizleme</span>
+          <button id="btnClearCompleted" class="btn btn-secondary" style="font-size: 11.5px; padding: 6px 10px;">Bitenleri Sil</button>
+          <button id="btnClearAll" class="btn btn-danger" style="font-size: 11.5px; padding: 6px 10px;">Tümünü Sıfırla</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Right Column: Stats & Live List -->
+    <section class="board-section">
+      
+      <!-- Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">👥</div>
+          <div>
+            <div id="statTotal" class="stat-val">0</div>
+            <div class="stat-label">Toplam Kayıt</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">⏳</div>
+          <div>
+            <div id="statWaiting" class="stat-val">0</div>
+            <div class="stat-label">Sırada Bekleyen</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">🎮</div>
+          <div>
+            <div id="statPlaying" class="stat-val">0</div>
+            <div class="stat-label">Şu An Oynayan</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8;">✅</div>
+          <div>
+            <div id="statCompleted" class="stat-val">0</div>
+            <div class="stat-label">Tamamlanan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Board Toolbar -->
+      <div class="board-toolbar">
+        <div class="filter-tabs">
+          <button class="tab-btn active" data-filter="all">Tümü (<span id="countAll">0</span>)</button>
+          <button class="tab-btn" data-filter="waiting">Bekleyenler (<span id="countWaiting">0</span>)</button>
+          <button class="tab-btn" data-filter="playing">Oynayanlar (<span id="countPlaying">0</span>)</button>
+          <button class="tab-btn" data-filter="completed">Tamamlananlar (<span id="countCompleted">0</span>)</button>
+        </div>
+
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchInput" placeholder="Instagram veya isim ara...">
+        </div>
+      </div>
+
+      <!-- The Real-Time Participant List -->
+      <div id="queueListContainer" class="queue-list-container">
+        <!-- Rows will be dynamically rendered here -->
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Modal: Manual Add Participant -->
+  <div id="modalManualAdd" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">➕ Manuel Katılımcı Ekle</h3>
+        <button id="btnCloseModal" class="btn-close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <form id="formManualAdd">
+        <div class="form-group">
+          <label>Instagram Kullanıcı Adı *</label>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 12px; top: 9px; color: #f43f5e; font-weight: 700;">@</span>
+            <input type="text" id="manualInstagram" class="custom-input" style="padding-left: 30px;" placeholder="ornek_kullanici" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>İsim / Lakap (İsteğe Bağlı)</label>
+          <input type="text" id="manualName" class="custom-input" placeholder="Ahmet Y.">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" id="btnCancelModal" class="btn btn-secondary">İptal</button>
+          <button type="submit" class="btn btn-primary">Sıraya Ekle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Socket.IO & Main Application JS -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

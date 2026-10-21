@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sıraya Katıl - Oyun Katılımcı Listesi</title>
+  <link rel="stylesheet" href="/css/mobile.css">
+  <link rel="icon" type="image/svg+xml" href="/assets/sudev-mark.svg">
+</head>
+<body>
+
+  <div class="mobile-wrapper">
+    
+    <!-- Header -->
+    <header class="mobile-header">
+      <div class="brand-icon">
+        <img src="/assets/sudev-wordmark.svg" alt="SÜDEV">
+      </div>
+      <h1>Oyuna Katıl</h1>
+      <p>Instagram hesabınızı girerek sıraya katılın</p>
+    </header>
+
+    <!-- Error Alert Message -->
+    <div id="alertBox" class="alert-error"></div>
+
+    <!-- Registration Form View -->
+    <main id="joinFormCard" class="mobile-card">
+      <div class="form-title">Sıra Kaydı</div>
+      <div class="form-sub">Lütfen Instagram hesabınızı doğru yazdığınızdan emin olun.</div>
+
+      <form id="joinForm">
+        <div class="input-group">
+          <label class="input-label" for="instagramInput">Instagram Kullanıcı Adınız *</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">@</span>
+            <input 
+              type="text" 
+              id="instagramInput" 
+              class="m-input" 
+              placeholder="kullanici_adiniz" 
+              autocomplete="off" 
+              autocapitalize="off" 
+              autocorrect="off" 
+              spellcheck="false" 
+              required
+            >
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="nameInput">Adınız veya Lakabınız (İsteğe Bağlı)</label>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              id="nameInput" 
+              class="m-input no-prefix" 
+              placeholder="Örn: Mehmet"
+            >
+          </div>
+        </div>
+
+        <button type="submit" id="btnSubmit" class="btn-submit">
+          <span>Sıraya Katıl 🚀</span>
+        </button>
+      </form>
+    </main>
+
+    <!-- Active Ticket View (Shown once joined or if already registered) -->
+    <section id="ticketCard" class="mobile-card ticket-container">
+      <div class="ticket-header">
+        <div id="ticketBadge" class="ticket-badge status-waiting">⏳ Sıra Bekleniyor</div>
+        
+        <div class="ticket-number-box">
+          <div class="ticket-number-label">Sıra Numaranız</div>
+          <div id="ticketPosition" class="ticket-number-val">#1</div>
+        </div>
+      </div>
+
+      <div id="ticketStatusCard" class="ticket-status-card status-waiting">
+        <div id="ticketStatusIcon" class="ticket-status-icon">⏳</div>
+        <div>
+          <div id="ticketStatusTitle" class="ticket-status-title">Sıradasınız</div>
+          <div id="ticketStatusDesc" class="ticket-status-desc">Önünüzde 0 kişi var. Lütfen bekleyin.</div>
+        </div>
+      </div>
+
+      <div class="user-summary">
+        <span class="user-ig-label">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+          <span id="ticketInstagram">@kullanici</span>
+        </span>
+        <span id="ticketName" style="color: var(--text-secondary); font-size: 13px;"></span>
+      </div>
+
+      <button id="btnLeaveQueue" class="btn-leave">Sıradan Ayrıl</button>
+    </section>
+
+    <!-- Footer Note -->
+    <footer class="mobile-footer">
+      Canlı Sıra Takip Sistemi • Ekranı kapatırsanız sıranız kaybolmaz
+    </footer>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/join.js"></script>
+</body>
+</html>
